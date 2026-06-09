@@ -6,13 +6,16 @@ import { TrendingUp, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  
+  // Login Form State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle Login Submit
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -78,7 +81,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card */}
+        {/* Form Container */}
         <div className="card" style={{ padding: '2rem', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-lg)' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 1.5rem', color: 'var(--text-primary)' }}>
             Sign in to your account
@@ -91,7 +94,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleLoginSubmit}>
             <div className="form-group">
               <label className="label" htmlFor="username">Email or Username</label>
               <input
@@ -140,7 +143,7 @@ export default function LoginPage() {
               id="login-btn"
               type="submit"
               className="btn btn-primary btn-lg"
-              style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
+              style={{ width: '100%', justifyContent: 'center', marginTop: '1.5rem' }}
               disabled={loading}
             >
               {loading ? (
@@ -148,10 +151,9 @@ export default function LoginPage() {
               ) : (
                 <LogIn size={16} />
               )}
-              {loading ? 'Logging    in…' : 'Login'}
+              {loading ? 'Logging in…' : 'Login'}
             </button>
           </form>
-
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '1.5rem' }}>
