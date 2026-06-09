@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     if (!username || !password) {
       return Response.json({ error: 'Username and password are required' }, { status: 400 });
     }
+    console.log(process.env.DATABASE_URL)
 
     const result = await pool.query(
       'SELECT id, username, display_name, password_hash, role FROM users WHERE username = $1',

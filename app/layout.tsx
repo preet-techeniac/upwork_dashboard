@@ -10,8 +10,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "BidTrack — Upwork Bidding Dashboard",
+  title: "BidTrack",
   description: "Track bids, earnings, and recruiter performance for Upwork freelancing",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

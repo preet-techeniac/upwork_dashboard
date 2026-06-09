@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <!-- Background Gradient: Vibrant Teal to Indigo-Blue -->
+    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" /> <!-- sky-500 -->
+      <stop offset="30%" stop-color="#14b8a6" /> <!-- teal-500 -->
+      <stop offset="70%" stop-color="#3b82f6" /> <!-- blue-500 -->
+      <stop offset="100%" stop-color="#6366f1" /> <!-- indigo-500 -->
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle container (rounded rectangle) with the gradient -->
+  <rect x="32" y="32" width="448" height="448" rx="120" fill="url(#favGrad)" />
+
+  <!-- Clean, bold, rounded trending line arrow in the center -->
+  <g stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Trendline -->
+    <path d="M 140,330 L 220,250 L 290,320 L 372,190" />
+    <!-- Arrowhead -->
+    <path d="M 295,190 H 372 V 267" />
+  </g>
+</svg>
