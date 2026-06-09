@@ -63,9 +63,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
+  const isAuthPage = pathname === '/login';
+
+  // Decide what to render to prevent flashes of unauthorized UI
+  const shouldRenderChildren = !loading && (
+    (user && !isAuthPage) || (!user && isAuthPage)
+  );
+
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading }}>
-      {children}
+      {shouldRenderChildren ? (
+        children
+      ) : (
+        <div style={{
+          display: 'flex',
+          minHeight: '100vh',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#090d16',
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '3px solid rgba(20,184,166,0.1)',
+            borderTopColor: '#14b8a6',
+            animation: 'auth-spin 1s linear infinite',
+          }} />
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes auth-spin {
+              to { transform: rotate(360deg); }
+            }
+          `}} />
+        </div>
+      )}
     </AuthContext.Provider>
   );
 }
