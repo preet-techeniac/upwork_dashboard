@@ -3,13 +3,19 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const pool = new Pool({
-  user:     process.env.POSTGRES_USER     ?? 'postgres',
-  host:     process.env.POSTGRES_HOST     ?? 'localhost',
-  database: process.env.POSTGRES_DB       ?? 'upwork_dashboard',
-  password: process.env.POSTGRES_PASSWORD ?? 'postgres',
-  port:     Number(process.env.POSTGRES_PORT) || 5432,
-});
+const connectionString = process.env.DATABASE_URL;
+const pool = connectionString
+  ? new Pool({
+      connectionString,
+      ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
+    })
+  : new Pool({
+      user:     process.env.POSTGRES_USER     ?? 'postgres',
+      host:     process.env.POSTGRES_HOST     ?? 'localhost',
+      database: process.env.POSTGRES_DB       ?? 'upwork_dashboard',
+      password: process.env.POSTGRES_PASSWORD ?? 'postgres',
+      port:     Number(process.env.POSTGRES_PORT) || 5432,
+    });
 
 async function run() {
   try {
