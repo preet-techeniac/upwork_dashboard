@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky install",
+    "prepare": "is-ci || husky install",
     "migrate": "ts-node scripts/run_migrations.ts"
   },
   "dependencies": {
