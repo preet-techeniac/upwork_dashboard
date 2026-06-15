@@ -26,20 +26,23 @@ export async function GET(req: NextRequest) {
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
-  const countRes = await pool.query(`SELECT COUNT(*) FROM earnings e ${where}`, params);
-  const total = parseInt(countRes.rows[0].count);
-
-  const dataRes = await pool.query(
-    `SELECT e.*, r.name AS recruiter_name, b.job_title, u.display_name AS created_by_name
+  const countQuery = `SELECT COUNT(*) FROM earnings e ${where}`;
+  const dataQuery = `SELECT e.*, r.name AS recruiter_name, NULL AS job_title, u.display_name AS created_by_name
      FROM earnings e
      LEFT JOIN recruiters r ON r.id = e.recruiter_id
      LEFT JOIN bids b ON b.id = e.bid_id
      LEFT JOIN users u ON u.id = e.created_by
      ${where}
      ORDER BY e.payment_date DESC, e.created_at DESC
-     LIMIT $${idx++} OFFSET $${idx++}`,
-    [...params, limit, offset]
-  );
+     LIMIT $${idx++} OFFSET $${idx++}`;
+  const dataParams = [...params, limit, offset];
+
+  const [countRes, dataRes] = await Promise.all([
+    pool.query(countQuery, params),
+    pool.query(dataQuery, dataParams)
+  ]);
+
+  const total = parseInt(countRes.rows[0].count);
 
   return Response.json({ data: dataRes.rows, total, page, limit, pages: Math.ceil(total / limit) });
 }

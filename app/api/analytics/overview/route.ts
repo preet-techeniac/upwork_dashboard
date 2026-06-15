@@ -7,28 +7,24 @@ export async function GET(req: NextRequest) {
   if (!user) return unauthorizedResponse();
 
   try {
-    // Total bids
-    const bidsRes = await pool.query('SELECT COUNT(*) AS total FROM bids');
-    // Bids by status
-    const statusRes = await pool.query(
-      `SELECT status, COUNT(*) AS count FROM bids WHERE status IS NOT NULL AND status != '' GROUP BY status`
-    );
-    // Win rate (exact status = 'client')
-    const wonRes = await pool.query(
-      `SELECT COUNT(*) AS won FROM bids WHERE LOWER(TRIM(status)) = 'client'`
-    );
-    
-    // This month bids
-    const monthBidsRes = await pool.query(
-      `SELECT COUNT(*) AS count FROM bids
-       WHERE date_trunc('month', application_date) = date_trunc('month', CURRENT_DATE)`
-    );
-    
-    // Total connects used (filter out string values like "Job no longer available")
-    const connectsRes = await pool.query(`
-      SELECT SUM(CAST(NULLIF(regexp_replace(connects, '[^0-9]', '', 'g'), '') AS integer)) AS total 
-      FROM bids
-    `);
+    // Execute all overview queries in parallel to significantly reduce total load time
+    const [bidsRes, statusRes, wonRes, monthBidsRes, connectsRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) AS total FROM bids'),
+      pool.query(
+        `SELECT status, COUNT(*) AS count FROM bids WHERE status IS NOT NULL AND status != '' GROUP BY status`
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS won FROM bids WHERE LOWER(TRIM(status)) = 'client'`
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS count FROM bids
+         WHERE date_trunc('month', application_date) = date_trunc('month', CURRENT_DATE)`
+      ),
+      pool.query(`
+        SELECT SUM(CAST(NULLIF(regexp_replace(connects, '[^0-9]', '', 'g'), '') AS integer)) AS total 
+        FROM bids
+      `)
+    ]);
 
     const total = parseInt(bidsRes.rows[0].total);
     const won = parseInt(wonRes.rows[0].won);

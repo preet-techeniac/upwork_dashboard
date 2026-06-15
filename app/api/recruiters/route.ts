@@ -24,11 +24,8 @@ export async function GET(req: NextRequest) {
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
-  const countRes = await pool.query(`SELECT COUNT(*) FROM recruiters r ${where}`, params);
-  const total = parseInt(countRes.rows[0].count);
-
-  const dataRes = await pool.query(
-    `SELECT r.*,
+  const countQuery = `SELECT COUNT(*) FROM recruiters r ${where}`;
+  const dataQuery = `SELECT r.*,
        (SELECT COUNT(*) FROM bids b WHERE b.recruiter_id = r.id) AS total_bids,
        (SELECT COUNT(*) FROM bids b WHERE b.recruiter_id = r.id AND b.status = 'client') AS won_bids,
        (SELECT COALESCE(SUM(amount), 0) FROM earnings e WHERE e.recruiter_id = r.id AND e.currency = 'USD') AS total_earned_usd,
@@ -36,9 +33,15 @@ export async function GET(req: NextRequest) {
      FROM recruiters r
      ${where}
      ORDER BY r.created_at DESC
-     LIMIT $${idx++} OFFSET $${idx++}`,
-    [...params, limit, offset]
-  );
+     LIMIT $${idx++} OFFSET $${idx++}`;
+  const dataParams = [...params, limit, offset];
+
+  const [countRes, dataRes] = await Promise.all([
+    pool.query(countQuery, params),
+    pool.query(dataQuery, dataParams)
+  ]);
+
+  const total = parseInt(countRes.rows[0].count);
 
   return Response.json({ data: dataRes.rows, total, page, limit, pages: Math.ceil(total / limit) });
 }

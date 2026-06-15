@@ -10,7 +10,7 @@ async function inspect() {
       FROM information_schema.tables 
       WHERE table_schema = 'public'
     `);
-    console.log('Tables:', tablesRes.rows.map(r => r.table_name));
+    console.log('Tables:', tablesRes.rows.map((r: any) => r.table_name));
 
     // 2. Get columns of bids
     const bidsCols = await pool.query(`
@@ -19,7 +19,7 @@ async function inspect() {
       WHERE table_schema = 'public' AND table_name = 'bids'
     `);
     console.log('\nbids Columns:');
-    bidsCols.rows.forEach(r => console.log(`  - ${r.column_name} (${r.data_type})`));
+    bidsCols.rows.forEach((r: any) => console.log(`  - ${r.column_name} (${r.data_type})`));
 
     // 3. Get columns of earnings
     const earningsCols = await pool.query(`
@@ -28,7 +28,7 @@ async function inspect() {
       WHERE table_schema = 'public' AND table_name = 'earnings'
     `);
     console.log('\nearnings Columns:');
-    earningsCols.rows.forEach(r => console.log(`  - ${r.column_name} (${r.data_type})`));
+    earningsCols.rows.forEach((r: any) => console.log(`  - ${r.column_name} (${r.data_type})`));
 
     // 4. Get distinct statuses in bids
     const statuses = await pool.query(`
@@ -38,7 +38,7 @@ async function inspect() {
       ORDER BY count DESC
     `);
     console.log('\nDistinct statuses in bids:');
-    statuses.rows.forEach(r => console.log(`  - "${r.status}": ${r.count}`));
+    statuses.rows.forEach((r: any) => console.log(`  - "${r.status}": ${r.count}`));
 
     // 5. Check if there are any connects/viewed/in-conversation details
     const connectsCount = await pool.query(`

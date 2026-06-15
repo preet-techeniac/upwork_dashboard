@@ -53,20 +53,17 @@ export async function GET(req: NextRequest) {
     orderByClause = `ORDER BY CAST(NULLIF(regexp_replace(connects, '[^0-9]', '', 'g'), '') AS integer) ${sortOrder} NULLS LAST, application_date DESC NULLS LAST`;
   }
 
-  const countRes = await pool.query(
-    `SELECT COUNT(*) FROM bids ${where}`,
-    params
-  );
-  const total = parseInt(countRes.rows[0].count);
+  // Evaluate the query strings synchronously before executing them in parallel
+  const countQuery = `SELECT COUNT(*) FROM bids ${where}`;
+  const dataQuery = `SELECT * FROM bids ${where} ${orderByClause} LIMIT $${idx++} OFFSET $${idx++}`;
+  const dataParams = [...params, limit, offset];
 
-  const dataRes = await pool.query(
-    `SELECT *
-     FROM bids
-     ${where}
-     ${orderByClause}
-     LIMIT $${idx++} OFFSET $${idx++}`,
-    [...params, limit, offset]
-  );
+  const [countRes, dataRes] = await Promise.all([
+    pool.query(countQuery, params),
+    pool.query(dataQuery, dataParams)
+  ]);
+
+  const total = parseInt(countRes.rows[0].count);
 
   return Response.json({
     data: dataRes.rows,

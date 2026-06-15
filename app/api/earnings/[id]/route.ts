@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   const { id } = await params;
   const result = await pool.query(
-    `SELECT e.*, r.name AS recruiter_name, b.job_title, u.display_name AS created_by_name
+    `SELECT e.*, r.name AS recruiter_name, NULL AS job_title, u.display_name AS created_by_name
      FROM earnings e
      LEFT JOIN recruiters r ON r.id = e.recruiter_id
      LEFT JOIN bids b ON b.id = e.bid_id

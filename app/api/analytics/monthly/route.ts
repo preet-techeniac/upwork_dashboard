@@ -7,21 +7,6 @@ export async function GET(req: NextRequest) {
   if (!user) return unauthorizedResponse();
 
   try {
-    // Self-healing: Ensure earnings table exists
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS earnings (
-        id            SERIAL PRIMARY KEY,
-        bid_id        INTEGER,
-        recruiter_id  INTEGER,
-        amount        NUMERIC(12,2) NOT NULL,
-        currency      VARCHAR(10) NOT NULL DEFAULT 'USD',
-        payment_date  DATE NOT NULL,
-        description   TEXT,
-        created_by    INTEGER,
-        created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
-
     const { searchParams } = new URL(req.url);
     const foundBy = searchParams.get('found_by');
 
@@ -47,7 +32,6 @@ export async function GET(req: NextRequest) {
       GROUP BY month_date
       ORDER BY month_date DESC
     `;
-    const bidsRes = await pool.query(bidsQuery, bidsParams);
 
     // 2. Fetch monthly earnings in USD
     let earningsQuery = `
@@ -73,7 +57,12 @@ export async function GET(req: NextRequest) {
       GROUP BY month_date
       ORDER BY month_date DESC
     `;
-    const earningsRes = await pool.query(earningsQuery, earningsParams);
+
+    // Execute queries in parallel for high-performance serverless load
+    const [bidsRes, earningsRes] = await Promise.all([
+      pool.query(bidsQuery, bidsParams),
+      pool.query(earningsQuery, earningsParams)
+    ]);
 
     // 3. Merge data by month
     const monthlyMap: Record<string, {
